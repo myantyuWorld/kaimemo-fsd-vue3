@@ -1,15 +1,11 @@
 <script setup lang="ts">
-import { Client } from '@notionhq/client';
-import { onMounted, ref } from 'vue';
-
-const notion = new Client({auth: import.meta.env.VITE_NOTION_TOKEN});
-
-const data = ref();
+import { onMounted } from 'vue';
+import {GET} from "@/shared/api";
 
 onMounted(async () => {
-  data.value = await notion.databases.query({
-    database_id: import.meta.env.VITE_NOTION_DATABASE_ID,
-  });
+  console.log(GET)
+  const {data} = await GET("/kaimemo", {});
+  console.log(data);
 });
 </script>
 <template>
@@ -19,11 +15,6 @@ onMounted(async () => {
       <p class="text-lg">ウェルカムページへようこそ</p>
     </div>
     <div>
-    <template v-if="data">
-      <div v-for="item in data.results" :key="item.id">
-        <p>{{ JSON.stringify(item.properties, null, 2) }}</p>
-      </div>
-    </template>
     </div>
   </div>
 </template>

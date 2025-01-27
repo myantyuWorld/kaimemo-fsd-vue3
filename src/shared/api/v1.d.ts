@@ -40,11 +40,10 @@ export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
         Kaimemo: {
-            /** Format: int64 */
-            id?: number;
-            name?: string;
-            tag?: string;
-            done?: boolean;
+            id: string;
+            name: string;
+            tag: string;
+            done: boolean;
         };
     };
     responses: {
@@ -54,7 +53,7 @@ export interface components {
                 [name: string]: unknown;
             };
             content: {
-                "application/json": components["schemas"]["Kaimemo"];
+                "application/json": components["schemas"]["Kaimemo"][];
             };
         };
         /** @description Access token is missing or invalid */

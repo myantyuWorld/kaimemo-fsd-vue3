@@ -4,6 +4,7 @@ import {GET} from "@/shared/api";
 
 onMounted(async () => {
   console.log(GET)
+  // TODO : swaggerから生成したv1.schema.tsに基づいてチェックが行われるため、backend側でswaggerの作成が必須
   const {data} = await GET("/kaimemo", {});
   console.log(data);
 });

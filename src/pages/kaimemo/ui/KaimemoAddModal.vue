@@ -7,8 +7,9 @@ defineProps<{
 
 defineEmits<{
   handleClickCloseAddItemModal: []
-  handleClickAddItem: []
+  handleAddItem: []
 }>()
+
 </script>
 
 <template>
@@ -18,6 +19,7 @@ defineEmits<{
     @closeModal="$emit('handleClickCloseAddItemModal')"
   >
     <template #modalBody>
+      <slot />
       <TheForm label="品名">
         <input
           type="text"
@@ -36,7 +38,7 @@ defineEmits<{
 
     <template #buttons>
       <SecondaryButton @click="$emit('handleClickCloseAddItemModal')"> 閉じる </SecondaryButton>
-      <PrimaryButton @click="$emit('handleClickAddItem')"> 追加 </PrimaryButton>
+      <PrimaryButton @click="$emit('handleAddItem')"> 追加 </PrimaryButton>
     </template>
   </BaseModal>
 </template>

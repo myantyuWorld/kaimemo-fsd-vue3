@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 
 const props = defineProps<{
+  id:string
   tag: string // TODO : 本当は、型制約を設けること 'food' | 'dailyItems'
   name: string
   done: boolean
@@ -21,7 +22,7 @@ const nameClasses = computed(() => ({
 </script>
 
 <template>
-  <div class="flex flex-col p-2 bg-white shadow-md hover:shodow-lg rounded-2xl">
+  <div class="flex flex-col p-2 bg-white shadow-md hover:shodow-lg rounded-2xl m-2">
     <div class="flex items-center justify-between">
       <div class="flex items-center">
         <svg
@@ -58,6 +59,7 @@ const nameClasses = computed(() => ({
 
       <button
         class="flex-no-shrink bg-red-500 px-5 ml-4 py-2 text-sm shadow-sm hover:shadow-lg font-medium tracking-wider border-2 border-red-500 text-white rounded-full"
+        @click="$emit('handleDoneItem', id)"
       >
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="32" viewBox="0 0 448 512">
           <path

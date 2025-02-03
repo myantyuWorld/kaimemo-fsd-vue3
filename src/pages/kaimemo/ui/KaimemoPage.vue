@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useInteraction } from '../hooks/useInteraction'
 import { BaseModal, TheForm, PrimaryButton, SecondaryButton } from '@/shared/ui'
-import KaimemoItem from './KaimemoItem.vue';
+import KaimemoItem from './KaimemoItem.vue'
 
 const {
   items,
@@ -10,7 +10,8 @@ const {
   defineField,
   onClickOpenAddItemModal,
   onClickCloseAddItemModal,
-  onClickAddItem
+  onClickAddItem,
+  onClickArchiveItem,
 } = useInteraction()
 
 const [name, nameProps] = defineField('name')
@@ -19,20 +20,19 @@ const [tag, tagProps] = defineField('tag')
 
 <template>
   <div>
-    <div class="flex justify-center items-center m-4">
-      <div class="bg-gray-100 rounded-lg shadow-lg">
-        <h1 class="text-4xl font-bold">一覧</h1>
+    <div class="justify-center">
+      <div class="bg-gray-100 rounded-lg shadow-lg p-4">
+        <h1 class="text-4xl font-bold">Kaimemo!</h1>
       </div>
     </div>
-    <div>
-      <template
-      v-for="item in items"
-          :key="item.id"
-      >
+    <div class="m-2">
+      <template v-for="item in items" :key="item.id">
         <KaimemoItem
+          :id="item.id"
           :tag="item.tag"
           :name="item.name"
           :done="item.done"
+          @handleDoneItem="onClickArchiveItem"
         ></KaimemoItem>
       </template>
     </div>
@@ -53,26 +53,22 @@ const [tag, tagProps] = defineField('tag')
       </svg>
     </button>
 
-    <BaseModal
-      title="アイテム追加"
-      :isOpen="isOpenModal"
-      @closeModal="onClickCloseAddItemModal"
-    >
+    <BaseModal title="アイテム追加" :isOpen="isOpenModal" @closeModal="onClickCloseAddItemModal">
       <template #modalBody>
-        <TheForm label="品名" >
+        <TheForm label="品名">
           <input
             type="text"
             class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 mt-1"
-            :class="{'bg-red-50 border-red-500' : errors.name}"
+            :class="{ 'bg-red-50 border-red-500': errors.name }"
             v-model="name"
             v-bind="nameProps"
           />
           <p class="mt-2 text-sm text-red-600 dark:text-red-500">{{ errors.name }}</p>
         </TheForm>
-        <TheForm label="カテゴリ" >
+        <TheForm label="カテゴリ">
           <select
             class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 mt-1"
-            :class="{'bg-red-50 border-red-500' : errors.tag}"
+            :class="{ 'bg-red-50 border-red-500': errors.tag }"
             v-model="tag"
             v-bind="tagProps"
           >

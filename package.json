@@ -13,21 +13,26 @@
     "type-check": "vue-tsc --build",
     "lint": "eslint . --fix",
     "format": "prettier --write src/",
-    "storybook": "storybook dev -p 6006 --initial-path=/onboarding --quiet",
+    "storybook": "storybook dev -p 6006 --initial-path=/ --quiet",
     "build-storybook": "storybook build",
-    "gen-api-types": "openapi-typescript https://raw.githubusercontent.com/myantyuWorld/kaimemo-echo-notion-integration/refs/heads/develop/openapi.yml --output ./src/shared/api/v1.d.ts  --properties-required-by-default"
+    "gen-api-types": "openapi-typescript https://raw.githubusercontent.com/myantyuWorld/kaimemo-echo-notion-integration/refs/heads/main/openapi.yml --output ./src/shared/api/v1.d.ts  --properties-required-by-default"
   },
   "dependencies": {
     "@feature-sliced/cli": "^1.0.0",
     "@feature-sliced/eslint-cli": "^0.0.0-concept.3",
     "@feature-sliced/eslint-config": "^0.1.1",
     "@notionhq/client": "^2.2.15",
+    "@vee-validate/zod": "^4.15.0",
     "openapi-fetch": "^0.13.4",
+    "vee-validate": "^4.15.0",
     "vue": "^3.5.13",
-    "vue-router": "^4.5.0"
+    "vue-router": "^4.5.0",
+    "zod": "^3.24.1"
   },
   "devDependencies": {
     "@chromatic-com/storybook": "^3.2.4",
+    "@egoist/tailwindcss-icons": "^1.9.0",
+    "@iconify/json": "^2.2.300",
     "@playwright/test": "^1.49.1",
     "@storybook/addon-essentials": "^8.5.0",
     "@storybook/addon-interactions": "^8.5.0",

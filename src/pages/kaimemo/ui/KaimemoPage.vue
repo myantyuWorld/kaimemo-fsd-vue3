@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useInteraction } from '../hooks/useInteraction'
 import { BaseModal, TheForm, PrimaryButton, SecondaryButton } from '@/shared/ui'
+import KaimemoItem from './KaimemoItem.vue';
 
 const {
   items,
@@ -24,17 +25,16 @@ const [tag, tagProps] = defineField('tag')
       </div>
     </div>
     <div>
-      <ul class="space-y-4 mb-2">
-        <li
-          v-for="item in items"
+      <template
+      v-for="item in items"
           :key="item.id"
-          class="bg-gradient-to-r from-green-400 to-blue-500 p-4 m-4 rounded-lg shadow-lg text-white"
-        >
-          <h2 class="text-2xl font-bold">{{ item.tag }}</h2>
-          <p class="text-lg">{{ item.name }}</p>
-          <p class="text-lg">{{ item.done ? 'Done' : 'Not Done' }}</p>
-        </li>
-      </ul>
+      >
+        <KaimemoItem
+          :tag="item.tag"
+          :name="item.name"
+          :done="item.done"
+        ></KaimemoItem>
+      </template>
     </div>
     <button
       class="fixed bottom-4 right-4 bg-blue-500 text-white p-4 rounded-full shadow-lg hover:bg-blue-700 flex items-center justify-center"

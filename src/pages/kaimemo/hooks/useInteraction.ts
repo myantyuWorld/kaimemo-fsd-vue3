@@ -7,6 +7,7 @@ import { toTypedSchema } from '@vee-validate/zod'
 export const useInteraction = () => {
   const items = ref<Kaimemo[]>()
   const isOpenModal = ref(false)
+  const selectedFilters = ref([])
 
   const { defineField, errors, handleSubmit } = useForm<KaimemoSchema>({
     validationSchema: toTypedSchema(schema),
@@ -64,6 +65,7 @@ export const useInteraction = () => {
     items,
     isOpenModal,
     errors,
+    selectedFilters,
     defineField,
     onClickOpenAddItemModal,
     onClickCloseAddItemModal,

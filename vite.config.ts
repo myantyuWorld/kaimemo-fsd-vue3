@@ -26,8 +26,8 @@ export default defineConfig({
         theme_color: "#42b883",
         icons: [
           {
-            src: "https://placehold.jp/192x192.png",
-            sizes: "192x192",
+            src: "/icon.png",
+            sizes: "512x512",
             type: "image/png",
             purpose: "any"
           },

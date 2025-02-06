@@ -25,7 +25,7 @@ const [tag, tagProps] = defineField('tag')
   <div>
     <div class="justify-center">
       <div class="bg-gray-100 rounded-lg shadow-lg p-4">
-        <h1 class="text-4xl font-bold">Kaimemo!</h1>
+        <h1 class="text-4xl font-bold">Kaimemo!!</h1>
       </div>
     </div>
 

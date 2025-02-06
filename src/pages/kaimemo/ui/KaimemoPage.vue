@@ -5,10 +5,10 @@ import KaimemoItem from './KaimemoItem.vue'
 import TagFilter from './TagFilter.vue'
 
 const {
-  items,
   isOpenModal,
   errors,
   selectedFilters,
+  filteredItems,
   defineField,
   onClickOpenAddItemModal,
   onClickCloseAddItemModal,
@@ -19,6 +19,7 @@ const {
 
 const [name, nameProps] = defineField('name')
 const [tag, tagProps] = defineField('tag')
+
 </script>
 
 <template>
@@ -29,10 +30,10 @@ const [tag, tagProps] = defineField('tag')
       </div>
     </div>
 
-    <TagFilter v-model="selectedFilters"/>
+    <TagFilter v-model="selectedFilters" />
 
     <div class="m-2">
-      <template v-for="item in items" :key="item.id">
+      <template v-for="item in filteredItems" :key="item.id">
         <KaimemoItem
           :id="item.id"
           :tag="item.tag"

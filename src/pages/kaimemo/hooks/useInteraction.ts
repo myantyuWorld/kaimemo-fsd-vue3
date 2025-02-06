@@ -9,6 +9,9 @@ export const useInteraction = () => {
   const isOpenModal = ref(false)
   const selectedFilters = ref<string[]>([])
 
+  // TODO : provide, injectで共通的に処理したい
+  const loading = ref<boolean>(true)
+
   const { defineField, errors, handleSubmit } = useForm<KaimemoSchema>({
     validationSchema: toTypedSchema(schema),
   })
@@ -20,6 +23,7 @@ export const useInteraction = () => {
       return []
     }
 
+    loading.value = false
     return data
   }
 
@@ -74,6 +78,7 @@ export const useInteraction = () => {
     errors,
     selectedFilters,
     filteredItems,
+    loading,
     defineField,
     onClickOpenAddItemModal,
     onClickCloseAddItemModal,

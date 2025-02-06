@@ -9,6 +9,7 @@ const {
   errors,
   selectedFilters,
   filteredItems,
+  loading,
   defineField,
   onClickOpenAddItemModal,
   onClickCloseAddItemModal,
@@ -16,10 +17,8 @@ const {
   onClickArchiveItem,
 } = useInteraction()
 
-
 const [name, nameProps] = defineField('name')
 const [tag, tagProps] = defineField('tag')
-
 </script>
 
 <template>
@@ -33,15 +32,19 @@ const [tag, tagProps] = defineField('tag')
     <TagFilter v-model="selectedFilters" />
 
     <div class="m-2">
-      <template v-for="item in filteredItems" :key="item.id">
-        <KaimemoItem
-          :id="item.id"
-          :tag="item.tag"
-          :name="item.name"
-          :done="item.done"
-          @handleDoneItem="onClickArchiveItem"
-        ></KaimemoItem>
-      </template>
+      <template v-if="loading"> データ取得中、、、 </template>
+      <template v-else-if="filteredItems?.length === 0"> データがありません。 </template>
+      <div v-else>
+        <template v-for="item in filteredItems" :key="item.id">
+          <KaimemoItem
+            :id="item.id"
+            :tag="item.tag"
+            :name="item.name"
+            :done="item.done"
+            @handleDoneItem="onClickArchiveItem"
+          ></KaimemoItem>
+        </template>
+      </div>
     </div>
 
     <button

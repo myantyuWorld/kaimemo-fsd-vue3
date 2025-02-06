@@ -2,11 +2,14 @@
 import { useInteraction } from '../hooks/useInteraction'
 import { BaseModal, TheForm, PrimaryButton, SecondaryButton } from '@/shared/ui'
 import KaimemoItem from './KaimemoItem.vue'
+import TagFilter from './TagFilter.vue'
 
 const {
-  items,
   isOpenModal,
   errors,
+  selectedFilters,
+  filteredItems,
+  loading,
   defineField,
   onClickOpenAddItemModal,
   onClickCloseAddItemModal,
@@ -25,17 +28,25 @@ const [tag, tagProps] = defineField('tag')
         <h1 class="text-4xl font-bold">Kaimemo!!</h1>
       </div>
     </div>
+
+    <TagFilter v-model="selectedFilters" />
+
     <div class="m-2">
-      <template v-for="item in items" :key="item.id">
-        <KaimemoItem
-          :id="item.id"
-          :tag="item.tag"
-          :name="item.name"
-          :done="item.done"
-          @handleDoneItem="onClickArchiveItem"
-        ></KaimemoItem>
-      </template>
+      <template v-if="loading"> データ取得中、、、 </template>
+      <template v-else-if="filteredItems?.length === 0"> データがありません。 </template>
+      <div v-else>
+        <template v-for="item in filteredItems" :key="item.id">
+          <KaimemoItem
+            :id="item.id"
+            :tag="item.tag"
+            :name="item.name"
+            :done="item.done"
+            @handleDoneItem="onClickArchiveItem"
+          ></KaimemoItem>
+        </template>
+      </div>
     </div>
+
     <button
       class="fixed bottom-4 right-4 bg-blue-500 text-white p-4 rounded-full shadow-lg hover:bg-blue-700 flex items-center justify-center"
       style="width: 56px; height: 56px"
@@ -53,6 +64,7 @@ const [tag, tagProps] = defineField('tag')
       </svg>
     </button>
 
+    <!-- 買い物追加モーダル -->
     <BaseModal title="アイテム追加" :isOpen="isOpenModal" @closeModal="onClickCloseAddItemModal">
       <template #modalBody>
         <TheForm label="品名">

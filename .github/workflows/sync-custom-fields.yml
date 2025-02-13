@@ -13,7 +13,7 @@ jobs:
         run: |
           # TODO : delete | debug log
           echo "hello!"
-          echo "${{ toJson(github.event) }}" | jq .
+          echo "${{ toJson(github.event) }}"
           echo "${{ toJson(github.event.issue.body) }}"
           PARENT_ISSUE=$(echo "${{ github.event.issue.body }}" | grep -oP '(?<=Parent Issue: #)\d+')
           if [[ -z "$PARENT_ISSUE" ]]; then

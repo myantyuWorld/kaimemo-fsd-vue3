@@ -1,0 +1,97 @@
+name: Sync Custom Fields from Parent Issue
+
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  sync_custom_fields:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check if Issue is a Sub-Issue
+        id: extract_parent
+        run: |
+          # TODO : delete | debug log
+          echo "${{ github.event.issue }}"
+          PARENT_ISSUE=$(echo "${{ github.event.issue.body }}" | grep -oP '(?<=Parent Issue: #)\d+')
+          if [[ -z "$PARENT_ISSUE" ]]; then
+            echo "Not a sub-issue. Skipping..."
+            exit 0
+          fi
+          echo "PARENT_ISSUE=$PARENT_ISSUE" >> $GITHUB_ENV
+
+      - name: Fetch Parent Issue Custom Fields
+        id: fetch_parent_fields
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          PARENT_ISSUE_NUMBER=${{ env.PARENT_ISSUE }}
+          REPO=${{ github.repository }}
+          
+          # GitHub Projects v2のAPIを使ってカスタムフィールド取得
+          PARENT_FIELDS=$(gh api graphql -F number=$PARENT_ISSUE_NUMBER -F repo=$REPO -f query='
+          query($number: Int!, $repo: String!) {
+            repository(owner:"${{ github.repository_owner }}", name:$repo) {
+              issue(number: $number) {
+                projectItems(first: 1) {
+                  nodes {
+                    fieldValues(first: 10) {
+                      nodes {
+                        field {
+                          name
+                        }
+                        value
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }')
+
+          echo "PARENT_FIELDS=$(echo "$PARENT_FIELDS" | jq -c '.data.repository.issue.projectItems.nodes[0].fieldValues.nodes')" >> $GITHUB_ENV
+      - name: Get GitHub Project ID
+        run: |
+          PROJECT_ID=$(gh api graphql -f query='
+          {
+            organization(login: "sorich-develop") {
+              projectsV2(first: 10) {
+                nodes {
+                  id
+                  title
+                }
+              }
+            }
+          }' | jq -r '.data.organization.projectsV2.nodes[] | select(.title=="standardization") | .id')
+          echo "PROJECT_ID=${PROJECT_ID}"
+      - name: Apply Custom Fields to Sub-Issue
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if [[ -z "${{ env.PARENT_FIELDS }}" ]]; then
+            echo "No parent fields found. Exiting..."
+            exit 0
+          fi
+
+          ISSUE_NUMBER=${{ github.event.issue.number }}
+          REPO=${{ github.repository }}
+
+          # GitHub Projects v2のAPIを使ってカスタムフィールドを適用
+          echo "${{ env.PARENT_FIELDS }}" | jq -c '.[]' | while read field; do
+            FIELD_NAME=$(echo "$field" | jq -r '.field.name')
+            FIELD_VALUE=$(echo "$field" | jq -r '.value')
+
+            gh api graphql -f query='
+            mutation($issue: ID!, $fieldName: String!, $fieldValue: String!) {
+              updateProjectV2ItemFieldValue(input: {
+                projectId: $PROJECT_ID,
+                itemId: $issue,
+                fieldName: $fieldName,
+                value: $fieldValue
+              }) {
+                projectV2Item {
+                  id
+                }
+              }
+            }'
+          done

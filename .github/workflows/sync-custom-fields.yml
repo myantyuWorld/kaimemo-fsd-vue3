@@ -12,7 +12,9 @@ jobs:
         id: extract_parent
         run: |
           # TODO : delete | debug log
-          echo "${{ github.event.issue }}"
+          echo "hello!"
+          echo "${{ toJson(github.event) }}" | jq .
+          echo "${{ toJson(github.event.issue.body) }}"
           PARENT_ISSUE=$(echo "${{ github.event.issue.body }}" | grep -oP '(?<=Parent Issue: #)\d+')
           if [[ -z "$PARENT_ISSUE" ]]; then
             echo "Not a sub-issue. Skipping..."

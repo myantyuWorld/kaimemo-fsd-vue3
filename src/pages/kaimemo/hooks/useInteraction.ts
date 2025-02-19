@@ -12,7 +12,7 @@ export const useInteraction = () => {
   // TODO : provide, injectで共通的に処理したい
   const loading = ref<boolean>(true)
 
-  const { defineField, errors, handleSubmit } = useForm<KaimemoSchema>({
+  const { defineField, errors, handleSubmit, setValues } = useForm<KaimemoSchema>({
     validationSchema: toTypedSchema(schema),
   })
 
@@ -46,6 +46,10 @@ export const useInteraction = () => {
       return
     }
 
+    setValues({
+      name: '',
+    })
+
     items.value = await fetchKaimemo()
   })
 
@@ -69,7 +73,7 @@ export const useInteraction = () => {
     if (!selectedFilters.value.length) {
       return items.value
     }
-    return items.value?.filter(item => selectedFilters.value.includes(item.tag))
+    return items.value?.filter((item) => selectedFilters.value.includes(item.tag))
   })
 
   return {

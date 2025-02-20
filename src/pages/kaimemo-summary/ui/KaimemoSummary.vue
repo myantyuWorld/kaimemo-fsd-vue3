@@ -6,7 +6,7 @@ import { formatYearMonth } from '@/shared/util/string'
 import WeeklySummaryTile from './WeeklySummaryTile.vue'
 
 const {
-  operatingCurrentMonth,
+  operatingCurrentDate,
   currentMonthlySummary,
   currentWeeklySummary,
   onClickSample,
@@ -22,7 +22,7 @@ const {
     <div class="justify-center">
       <div class="bg-gray-100 rounded-lg shadow-lg p-4 flex items-center justify-between">
         <span class="text-3xl" @click="onClickMonthlyPrev">＜</span>
-        <h1 class="text-2xl font-bold">{{ formatYearMonth(operatingCurrentMonth) }}</h1>
+        <h1 class="text-2xl font-bold">{{ formatYearMonth(operatingCurrentDate) }}</h1>
         <span class="text-3xl" @click="onClickMonthlyNext">＞</span>
       </div>
     </div>
@@ -39,6 +39,7 @@ const {
     />
 
     <WeeklySummaryTile
+      :date="operatingCurrentDate"
       :weekly-summary="
         currentWeeklySummary || { weekStart: '', weekEnd: '', totalAmount: 0, items: [] }
       "

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { TheForm } from '@/shared/ui'
-import { formatAmount, formatDate } from '@/shared/util/string'
+import { formatAmount } from '@/shared/util/string'
 import { computed } from 'vue'
 
 const props = defineProps<{
@@ -17,7 +17,7 @@ const formattedWeeklyAmount = computed(() => {
 <template>
   <div class="flex items-center justify-between mb-2">
     <h5 class="text-xl font-bold leading-none text-gray-900 dark:text-white">
-      {{ formatDate(startDate) }} ~ {{ formatDate(endDate) }}
+      {{ startDate }} ~ {{ endDate }}
     </h5>
   </div>
   <div class="flex justify-end">

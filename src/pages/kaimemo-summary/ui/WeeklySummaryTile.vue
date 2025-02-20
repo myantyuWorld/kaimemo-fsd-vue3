@@ -3,10 +3,25 @@ import TheCard from './TheCard.vue'
 import SummaryRecordHeader from './SummaryRecordHeader.vue'
 import SummaryRecordItem from './SummaryRecordItem.vue'
 import type { components } from '@/shared/api/v1'
+import { computed } from 'vue'
+import { formatDateFromDate } from '@/shared/util/string'
 
-defineProps<{
+const props = defineProps<{
+  date: Date
   weeklySummary: components['schemas']['WeeklySummary']
 }>()
+
+const getWeekDate = (offset: number) => {
+  const date = new Date(props.date)
+  date.setDate(date.getDate() - date.getDay() + offset)
+  return formatDateFromDate(date)
+}
+
+const WEEK_START_OFFSET = 0
+const WEEK_END_OFFSET = 6
+
+const weekStart = computed(() => getWeekDate(WEEK_START_OFFSET))
+const weekEnd = computed(() => getWeekDate(WEEK_END_OFFSET))
 
 defineEmits<{
   onClickPrev: []
@@ -20,8 +35,8 @@ defineEmits<{
       <div class="basis-32 flex items-center text-2xl" @click="$emit('onClickPrev')">＜</div>
       <div class="basis-224 m-2">
         <SummaryRecordHeader
-          :startDate="weeklySummary.weekStart"
-          :endDate="weeklySummary.weekEnd"
+          :startDate="weekStart"
+          :endDate="weekEnd"
           :weeklyAmount="weeklySummary.totalAmount"
         />
       </div>

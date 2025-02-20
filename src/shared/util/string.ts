@@ -6,6 +6,10 @@ export const formatAmount = (amount: number) => {
 }
 
 export const formatDate = (dateString: string): string => {
+  if (!dateString) {
+    return 'no data'
+  }
+
   const date = new Date(dateString)
   const year = date.getFullYear()
   const month = String(date.getMonth() + 1).padStart(2, '0')
@@ -13,4 +17,9 @@ export const formatDate = (dateString: string): string => {
   const dayOfWeek = ['日', '月', '火', '水', '木', '金', '土'][date.getDay()]
 
   return `${year}/${month}/${day}（${dayOfWeek}）`
+}
+export const formatYearMonth = (date: Date): string => {
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  return `${year}/${month}`
 }

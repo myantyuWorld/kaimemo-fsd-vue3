@@ -1,41 +1,50 @@
 <script setup lang="ts">
 import { PlusButton } from '@/shared/ui'
-import SummaryRecordHeader from './SummaryRecordHeader.vue'
-import TheCard from './TheCard.vue'
-import SummaryRecordItem from './SummaryRecordItem.vue'
 import MonthlySummaryTile from './MonthlySummaryTile.vue'
+import { useInteraction } from '../hooks/useInteraction'
+import { formatYearMonth } from '@/shared/util/string'
+import WeeklySummaryTile from './WeeklySummaryTile.vue'
 
-const onClickSample = () => {
-  console.log('sample')
-}
+const {
+  operatingCurrentMonth,
+  currentMonthlySummary,
+  currentWeeklySummary,
+  onClickSample,
+  onClickMonthlyPrev,
+  onClickMonthlyNext,
+  onClickWeeklyPrev,
+  onClickWeeklyNext,
+} = useInteraction()
 </script>
 
 <template>
   <div>
     <div class="justify-center">
       <div class="bg-gray-100 rounded-lg shadow-lg p-4 flex items-center justify-between">
-        <span class="text-3xl">＜</span>
-        <h1 class="text-2xl font-bold">2024/02</h1>
-        <span class="text-3xl">＞</span>
+        <span class="text-3xl" @click="onClickMonthlyPrev">＜</span>
+        <h1 class="text-2xl font-bold">{{ formatYearMonth(operatingCurrentMonth) }}</h1>
+        <span class="text-3xl" @click="onClickMonthlyNext">＞</span>
       </div>
     </div>
 
-    <MonthlySummaryTile tag="食費" :current-expense="10000" :available-amount="40000" />
-    <MonthlySummaryTile tag="日用品" :current-expense="5090" :available-amount="1" />
+    <MonthlySummaryTile
+      tag="食費"
+      :current-expense="currentMonthlySummary?.tagSummary.食費 ?? 0"
+      :available-amount="40000"
+    />
+    <MonthlySummaryTile
+      tag="日用品"
+      :current-expense="currentMonthlySummary?.tagSummary.日用品 ?? 0"
+      :available-amount="10000"
+    />
 
-    <TheCard>
-      <SummaryRecordHeader startDate="2025-02-01" endDate="2025-02-17" :weeklyAmount="10000" />
-
-      <TheCard>
-        <div class="flow-root overflow-auto">
-          <ul role="list" class="divide-y divide-gray-200 dark:divide-gray-700">
-            <SummaryRecordItem tag="食費" :amount="3000" date="2025-02-19" />
-            <SummaryRecordItem tag="日用品" :amount="1000" date="2025-02-18" />
-            <SummaryRecordItem tag="食費" :amount="1000" date="2025-02-14" />
-          </ul>
-        </div>
-      </TheCard>
-    </TheCard>
+    <WeeklySummaryTile
+      :weekly-summary="
+        currentWeeklySummary || { weekStart: '', weekEnd: '', totalAmount: 0, items: [] }
+      "
+      @onClickPrev="onClickWeeklyPrev"
+      @onClickNext="onClickWeeklyNext"
+    />
 
     <PlusButton @click="onClickSample" />
   </div>

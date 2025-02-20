@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useInteraction } from '../hooks/useInteraction'
-import { BaseModal, TheForm, PrimaryButton, SecondaryButton } from '@/shared/ui'
+import { BaseModal, TheForm, PrimaryButton, SecondaryButton, PlusButton } from '@/shared/ui'
 import KaimemoItem from './KaimemoItem.vue'
 import TagFilter from './TagFilter.vue'
 
@@ -64,22 +64,7 @@ const [tag, tagProps] = defineField('tag')
       </div>
     </div>
 
-    <button
-      class="fixed bottom-4 right-4 bg-blue-500 text-white p-4 rounded-full shadow-lg hover:bg-blue-700 flex items-center justify-center"
-      style="width: 56px; height: 56px"
-      @click="onClickOpenAddItemModal"
-    >
-      <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
-        <path
-          fill="none"
-          stroke="currentColor"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="2"
-          d="M16 25V7m-9 9h18"
-        />
-      </svg>
-    </button>
+    <PlusButton @click="onClickOpenAddItemModal" />
 
     <!-- 買い物追加モーダル -->
     <BaseModal title="アイテム追加" :isOpen="isOpenModal" @closeModal="onClickCloseAddItemModal">

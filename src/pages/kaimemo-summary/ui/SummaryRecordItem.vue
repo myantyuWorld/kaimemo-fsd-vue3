@@ -1,9 +1,20 @@
 <script setup lang="ts">
-defineProps<{
+import { formatAmount, formatDate } from '@/shared/util/string'
+import { computed } from 'vue'
+
+const props = defineProps<{
   tag: string
   date: string
   amount: number
 }>()
+
+const formattedDate = computed(() => {
+  return formatDate(props.date)
+})
+
+const formattedAmount = computed(() => {
+  return formatAmount(props.amount)
+})
 </script>
 <template>
   <li class="py-3 sm:py-4">
@@ -37,10 +48,12 @@ defineProps<{
         </svg>
       </div>
       <div class="flex-1 min-w-0 ms-4">
-        <p class="text-sm font-medium text-gray-900 truncate dark:text-white">{{ date }}</p>
+        <p class="text-xl font-medium text-gray-900 truncate dark:text-white">
+          {{ formattedDate }}
+        </p>
       </div>
-      <div class="inline-flex items-center text-base font-semibold text-gray-900 dark:text-white">
-        {{ amount }}円
+      <div class="inline-flex items-center text-xl font-semibold text-gray-900 dark:text-white">
+        {{ formattedAmount }}円
       </div>
     </div>
   </li>

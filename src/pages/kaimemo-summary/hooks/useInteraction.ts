@@ -1,12 +1,37 @@
-import { GET } from '@/shared/api'
+import { GET, POST } from '@/shared/api'
 import type { components } from '@/shared/api/v1'
 import { computed, onMounted, ref } from 'vue'
+import { schema, type KaimemoSummarySchema } from '../types'
+import { toTypedSchema } from '@vee-validate/zod'
+import { useForm } from 'vee-validate'
 
 export const useInteraction = () => {
   // TODO : provide, injectで共通的に処理したい
   const loading = ref<boolean>(true)
+  const isOpenModal = ref<boolean>(false)
   const operatingCurrentDate = ref<Date>(new Date())
   const summaries = ref<components['schemas']['KaimemoSummary']>()
+
+  const { defineField, errors, handleSubmit, resetForm } = useForm<KaimemoSummarySchema>({
+    validationSchema: toTypedSchema(schema),
+  })
+
+  const currentMonthlySummary = computed(() => {
+    return summaries.value?.monthlySummaries.find(
+      (summary) => summary.month === operatingCurrentDate.value.toISOString().slice(0, 7),
+    )
+  })
+
+  const currentWeeklySummary = computed(() => {
+    const weekStart = new Date(operatingCurrentDate.value)
+    weekStart.setDate(weekStart.getDate() - weekStart.getDay())
+
+    return summaries.value?.weeklySummaries.find(
+      (summary) =>
+        summary.weekStart ===
+        new Date(weekStart.getTime() + 9 * 60 * 60 * 1000).toISOString().slice(0, 10),
+    )
+  })
 
   onMounted(async () => {
     await fetchKaimemoSummary()
@@ -22,8 +47,13 @@ export const useInteraction = () => {
     summaries.value = data
   }
 
-  const onClickSample = () => {
-    console.log('sample')
+  const onClickAddAmountModal = () => {
+    isOpenModal.value = true
+    resetForm()
+  }
+
+  const onClickCloseAmountModal = () => {
+    isOpenModal.value = false
   }
 
   const onClickMonthlyPrev = () => {
@@ -59,31 +89,33 @@ export const useInteraction = () => {
     }
   }
 
-  const currentMonthlySummary = computed(() => {
-    return summaries.value?.monthlySummaries.find(
-      (summary) => summary.month === operatingCurrentDate.value.toISOString().slice(0, 7),
-    )
-  })
+  const onClickAddAmountRecord = handleSubmit(async (values) => {
+    const { error } = await POST('/kaimemo/summary', { body: values })
+    if (error) {
+      console.error(error)
+      return
+    }
 
-  const currentWeeklySummary = computed(() => {
-    const weekStart = new Date(operatingCurrentDate.value)
-    weekStart.setDate(weekStart.getDate() - weekStart.getDay())
+    isOpenModal.value = false
 
-    return summaries.value?.weeklySummaries.find(
-      (summary) => summary.weekStart === weekStart.toISOString().slice(0, 10),
-    )
+    fetchKaimemoSummary()
   })
 
   return {
+    isOpenModal,
     loading,
     currentMonthlySummary,
     currentWeeklySummary,
     operatingCurrentDate,
+    errors,
+    defineField,
     fetchKaimemoSummary,
-    onClickSample,
+    onClickAddAmountModal,
+    onClickCloseAmountModal,
     onClickMonthlyPrev,
     onClickMonthlyNext,
     onClickWeeklyPrev,
     onClickWeeklyNext,
+    onClickAddAmountRecord,
   }
 }

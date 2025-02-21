@@ -3,52 +3,84 @@ name: Sync Custom Fields from Parent Issue
 on:
   issues:
     types: [opened]
+env:
+  REPOSITORY_NAME: "kaimemo-fsd-vue3" # 事前に設定するもの
 
 jobs:
   sync_custom_fields:
     runs-on: ubuntu-latest
     steps:
-      - name: Check if Issue is a Sub-Issue
+      - name: Extract issue number and set as environment variable
         id: extract_parent
         run: |
-          # TODO : delete | debug log
-          echo "===================================================""
-          echo "github event"
-          echo "===================================================""
-          echo "${{ toJson(github.event) }}"
-          echo "===================================================""
-          echo "github.event.issue.body"
-          echo "===================================================""
-          echo "${{ toJson(github.event.issue.body) }}"
-          echo "===================================================""
-          PARENT_ISSUE=$(echo "${{ github.event.issue.body }}" | grep -oP '(?<=Parent Issue: #)\d+')
-          if [[ -z "$PARENT_ISSUE" ]]; then
-            echo "Not a sub-issue. Skipping..."
-            exit 0
-          fi
-          echo "PARENT_ISSUE=$PARENT_ISSUE" >> $GITHUB_ENV
-
-      - name: Fetch Parent Issue Custom Fields
-        id: fetch_parent_fields
+          echo "hello"
+          ISSUE_NUMBER=$(echo '${{ toJson(github.event) }}' | jq -r '.issue.number')
+          echo "ISSUE_NUMBER=$ISSUE_NUMBER"
+          echo "ISSUE_NUMBER=$ISSUE_NUMBER" >> $GITHUB_ENV
+      # - name: Install GitHub CLI
+      #   shell: bash
+      #   if: ${{ env.ACT && runner.os == 'Linux' }}
+      #   run: |
+      #     (type -p wget >/dev/null || (sudo apt update && sudo apt-get install wget -y)) \
+      #       && sudo mkdir -p -m 755 /etc/apt/keyrings \
+      #       && out=$(mktemp) && wget -nv -O$out https://cli.github.com/packages/githubcli-archive-keyring.gpg \
+      #       && cat $out | sudo tee /etc/apt/keyrings/githubcli-archive-keyring.gpg > /dev/null \
+      #       && sudo chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg \
+      #       && echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null \
+      #       && sudo apt update \
+      #       && sudo apt install gh -y
+      - name: get parent issue info
+        id: get_parent_issue
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          PARENT_ISSUE_NUMBER=${{ env.PARENT_ISSUE }}
-          REPO=${{ github.repository }}
-          
-          # GitHub Projects v2のAPIを使ってカスタムフィールド取得
-          PARENT_FIELDS=$(gh api graphql -F number=$PARENT_ISSUE_NUMBER -F repo=$REPO -f query='
+          echo ${{env.ISSUE_NUMBER}}
+          echo ${{env.REPOSITORY_NAME}}
+          PARENT_ISSUE_RESPONSE=$(gh api graphql -F number=${{env.ISSUE_NUMBER}} -F repo=${{env.REPOSITORY_NAME }} -f query='
           query($number: Int!, $repo: String!) {
-            repository(owner:"${{ github.repository_owner }}", name:$repo) {
+            repository(owner:"myantyuWorld", name:$repo) {
               issue(number: $number) {
-                projectItems(first: 1) {
+                projectItems(first: 10) {
                   nodes {
-                    fieldValues(first: 10) {
-                      nodes {
-                        field {
-                          name
+                    id
+                    type
+                    content {
+                      ... on Issue {
+                        id
+                        title
+                        number
+                        body
+                        url
+                        parent {
+                          ... on Issue {
+                            number
+                            title
+                            body
+                            url
+                            projectItems(first: 10) {
+                              totalCount
+                              nodes {
+                                project {
+                                  number
+                                  title
+                                }
+                                subFunction: fieldValueByName(name: "SubFunction") {
+                                    ... on ProjectV2ItemFieldTextValue {
+                                        id
+                                        text
+                                    }
+                                }
+                                mileStones: fieldValueByName(name: "MileStones") {
+                                    ... on ProjectV2ItemFieldSingleSelectValue {
+                                        id
+                                        optionId
+                                        name
+                                    }
+                                }
+                              }
+                            }
+                          }
                         }
-                        value
                       }
                     }
                   }
@@ -56,50 +88,5 @@ jobs:
               }
             }
           }')
+          echo $PARENT_ISSUE_RESPONSE
 
-          echo "PARENT_FIELDS=$(echo "$PARENT_FIELDS" | jq -c '.data.repository.issue.projectItems.nodes[0].fieldValues.nodes')" >> $GITHUB_ENV
-      - name: Get GitHub Project ID
-        run: |
-          PROJECT_ID=$(gh api graphql -f query='
-          {
-            organization(login: "sorich-develop") {
-              projectsV2(first: 10) {
-                nodes {
-                  id
-                  title
-                }
-              }
-            }
-          }' | jq -r '.data.organization.projectsV2.nodes[] | select(.title=="standardization") | .id')
-          echo "PROJECT_ID=${PROJECT_ID}"
-      - name: Apply Custom Fields to Sub-Issue
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          if [[ -z "${{ env.PARENT_FIELDS }}" ]]; then
-            echo "No parent fields found. Exiting..."
-            exit 0
-          fi
-
-          ISSUE_NUMBER=${{ github.event.issue.number }}
-          REPO=${{ github.repository }}
-
-          # GitHub Projects v2のAPIを使ってカスタムフィールドを適用
-          echo "${{ env.PARENT_FIELDS }}" | jq -c '.[]' | while read field; do
-            FIELD_NAME=$(echo "$field" | jq -r '.field.name')
-            FIELD_VALUE=$(echo "$field" | jq -r '.value')
-
-            gh api graphql -f query='
-            mutation($issue: ID!, $fieldName: String!, $fieldValue: String!) {
-              updateProjectV2ItemFieldValue(input: {
-                projectId: $PROJECT_ID,
-                itemId: $issue,
-                fieldName: $fieldName,
-                value: $fieldValue
-              }) {
-                projectV2Item {
-                  id
-                }
-              }
-            }'
-          done

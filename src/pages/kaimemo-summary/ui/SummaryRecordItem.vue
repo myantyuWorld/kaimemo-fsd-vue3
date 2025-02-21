@@ -3,9 +3,14 @@ import { formatAmount, formatDate } from '@/shared/util/string'
 import { computed } from 'vue'
 
 const props = defineProps<{
+  id: string
   tag: string
   date: string
   amount: number
+}>()
+
+defineEmits<{
+  click: [id: string]
 }>()
 
 const formattedDate = computed(() => {
@@ -17,7 +22,7 @@ const formattedAmount = computed(() => {
 })
 </script>
 <template>
-  <li class="py-3 sm:py-4">
+  <li class="p-2">
     <div class="flex items-center">
       <div class="shrink-0">
         <svg
@@ -48,13 +53,25 @@ const formattedAmount = computed(() => {
         </svg>
       </div>
       <div class="flex-1 min-w-0 ms-4">
-        <p class="text-xl font-medium text-gray-900 truncate dark:text-white">
+        <p class="text-lg font-medium text-gray-900 truncate dark:text-white">
           {{ formattedDate }}
         </p>
+        <div class="inline-flex items-center text-2xl font-semibold text-gray-900 dark:text-white">
+          {{ formattedAmount }}
+          <div class="text-base">円</div>
+        </div>
       </div>
-      <div class="inline-flex items-center text-xl font-semibold text-gray-900 dark:text-white">
-        {{ formattedAmount }}円
-      </div>
+      <button
+        class="flex-no-shrink bg-red-500 p-2 ml-4 text-sm shadow-sm hover:shadow-lg font-medium tracking-wider border-2 border-red-500 text-white rounded-full"
+        @click="$emit('click', id)"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 448 512">
+          <path
+            fill="currentColor"
+            d="M32 464a48 48 0 0 0 48 48h288a48 48 0 0 0 48-48V128H32zm272-256a16 16 0 0 1 32 0v224a16 16 0 0 1-32 0zm-96 0a16 16 0 0 1 32 0v224a16 16 0 0 1-32 0zm-96 0a16 16 0 0 1 32 0v224a16 16 0 0 1-32 0zM432 32H312l-9.4-18.7A24 24 0 0 0 281.1 0H166.8a23.72 23.72 0 0 0-21.4 13.3L136 32H16A16 16 0 0 0 0 48v32a16 16 0 0 0 16 16h416a16 16 0 0 0 16-16V48a16 16 0 0 0-16-16"
+          />
+        </svg>
+      </button>
     </div>
   </li>
 </template>

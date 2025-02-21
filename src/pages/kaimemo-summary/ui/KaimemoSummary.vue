@@ -19,6 +19,7 @@ const {
   onClickWeeklyPrev,
   onClickWeeklyNext,
   onClickAddAmountRecord,
+  onClickDeleteAmountRecord,
 } = useInteraction()
 
 const [amount, amountProps] = defineField('amount')
@@ -54,6 +55,7 @@ const [date, dateProps] = defineField('date')
       "
       @onClickPrev="onClickWeeklyPrev"
       @onClickNext="onClickWeeklyNext"
+      @onClickDeleteAmountRecord="onClickDeleteAmountRecord"
     />
 
     <PlusButton @click="onClickAddAmountModal" />

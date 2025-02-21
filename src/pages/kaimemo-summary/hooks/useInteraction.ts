@@ -1,4 +1,4 @@
-import { GET, POST } from '@/shared/api'
+import { DELETE, GET, POST } from '@/shared/api'
 import type { components } from '@/shared/api/v1'
 import { computed, onMounted, ref } from 'vue'
 import { schema, type KaimemoSummarySchema } from '../types'
@@ -101,6 +101,22 @@ export const useInteraction = () => {
     fetchKaimemoSummary()
   })
 
+  const onClickDeleteAmountRecord = async (id: string) => {
+    const { error } = await DELETE('/kaimemo/summary/{id}', {
+      params: {
+        path: {
+          id,
+        },
+      },
+    })
+    if (error) {
+      console.error(error)
+      return
+    }
+
+    fetchKaimemoSummary()
+  }
+
   return {
     isOpenModal,
     loading,
@@ -117,5 +133,6 @@ export const useInteraction = () => {
     onClickWeeklyPrev,
     onClickWeeklyNext,
     onClickAddAmountRecord,
+    onClickDeleteAmountRecord,
   }
 }

@@ -28,8 +28,8 @@ const [date, dateProps] = defineField('date')
 
 <template>
   <div>
-    <div class="justify-center">
-      <div class="bg-gray-100 rounded-lg shadow-lg p-4 flex items-center justify-between">
+    <div class="justify-center sticky top-0">
+      <div class="bg-gray-100 shadow-lg p-4 flex items-center justify-between">
         <span class="text-3xl" @click="onClickMonthlyPrev">＜</span>
         <h1 class="text-2xl font-bold">{{ formatYearMonth(operatingCurrentDate) }}</h1>
         <span class="text-3xl" @click="onClickMonthlyNext">＞</span>

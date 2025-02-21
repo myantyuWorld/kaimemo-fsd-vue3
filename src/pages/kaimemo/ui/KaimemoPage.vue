@@ -24,7 +24,7 @@ const [tag, tagProps] = defineField('tag')
 <template>
   <div>
     <!-- TODO : Layoutを導入して、ヘッダーを共通的に設定すること -->
-    <div class="justify-center">
+    <div class="justify-center sticky top-0">
       <div class="bg-gray-100 rounded-lg shadow-lg p-4 flex items-center justify-between">
         <h1 class="text-4xl font-bold">Kaimemo!!</h1>
         <router-link to="/summary" class="text-gray-600 hover:text-gray-900">

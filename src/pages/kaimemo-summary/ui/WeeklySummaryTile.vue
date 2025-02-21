@@ -26,6 +26,7 @@ const weekEnd = computed(() => getWeekDate(WEEK_END_OFFSET))
 defineEmits<{
   onClickPrev: []
   onClickNext: []
+  onClickDeleteAmountRecord: [id: string]
 }>()
 </script>
 
@@ -47,7 +48,13 @@ defineEmits<{
       <div class="flow-root overflow-auto">
         <ul role="list" class="divide-y divide-gray-200 dark:divide-gray-700">
           <template v-for="item in weeklySummary.items" :key="item.id">
-            <SummaryRecordItem :tag="item.tag" :amount="item.amount" :date="item.date" />
+            <SummaryRecordItem
+              :id="item.id"
+              :tag="item.tag"
+              :amount="item.amount"
+              :date="item.date"
+              @click="$emit('onClickDeleteAmountRecord', $event)"
+            />
           </template>
         </ul>
       </div>

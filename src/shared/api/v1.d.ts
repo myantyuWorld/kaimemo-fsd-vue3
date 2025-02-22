@@ -17,7 +17,9 @@ export interface paths {
          */
         get: {
             parameters: {
-                query?: never;
+                query?: {
+                    tempUserID?: string;
+                };
                 header?: never;
                 path?: never;
                 cookie?: never;
@@ -42,6 +44,7 @@ export interface paths {
             requestBody: {
                 content: {
                     "application/json": {
+                        tempUserID: string;
                         name: string;
                         tag: string;
                     };
@@ -89,7 +92,13 @@ export interface paths {
                 };
                 cookie?: never;
             };
-            requestBody?: never;
+            requestBody: {
+                content: {
+                    "application/json": {
+                        tempUserID: string;
+                    };
+                };
+            };
             responses: {
                 /** @description OK */
                 200: {
@@ -121,7 +130,9 @@ export interface paths {
          */
         get: {
             parameters: {
-                query?: never;
+                query?: {
+                    tempUserID?: string;
+                };
                 header?: never;
                 path?: never;
                 cookie?: never;
@@ -146,6 +157,7 @@ export interface paths {
             requestBody: {
                 content: {
                     "application/json": {
+                        tempUserID: string;
                         /** @example 食費 */
                         tag: string;
                         /** @example 2020-01-01 */
@@ -197,7 +209,13 @@ export interface paths {
                 };
                 cookie?: never;
             };
-            requestBody?: never;
+            requestBody: {
+                content: {
+                    "application/json": {
+                        tempUserID: string;
+                    };
+                };
+            };
             responses: {
                 /** @description OK */
                 200: {

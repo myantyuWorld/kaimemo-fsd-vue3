@@ -3,12 +3,14 @@ import { useForm } from 'vee-validate'
 import { onMounted, ref, computed } from 'vue'
 import { type KaimemoSchema, schema } from '../types'
 import { toTypedSchema } from '@vee-validate/zod'
+import { useRouter } from 'vue-router'
 
 export const useInteraction = () => {
   const items = ref<Kaimemo[]>()
   const isOpenModal = ref(false)
   const selectedFilters = ref<string[]>([])
-  const tempUserID = localStorage.getItem('tempUserID') ?? ''
+  const tempUserID =
+    (useRouter().currentRoute.value.query.share as string) ?? localStorage.getItem('tempUserID')
 
   // TODO : provide, injectで共通的に処理したい
   const loading = ref<boolean>(true)
@@ -36,6 +38,8 @@ export const useInteraction = () => {
 
   onMounted(async () => {
     items.value = await fetchKaimemo()
+
+    localStorage.setItem('tempUserID', tempUserID)
   })
 
   const onClickOpenAddItemModal = () => {

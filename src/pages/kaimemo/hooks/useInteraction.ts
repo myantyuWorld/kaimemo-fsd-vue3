@@ -1,4 +1,4 @@
-import { DELETE, GET, POST, type Kaimemo } from '@/shared/api'
+import { type Kaimemo } from '@/shared/api'
 import { useForm } from 'vee-validate'
 import { onMounted, ref, computed } from 'vue'
 import { type KaimemoSchema, schema } from '../types'
@@ -11,6 +11,7 @@ export const useInteraction = () => {
   const selectedFilters = ref<string[]>([])
   const tempUserID =
     (useRouter().currentRoute.value.query.share as string) ?? localStorage.getItem('tempUserID')
+  const ws = new WebSocket(`${import.meta.env.VITE_WEBSOCKET_URL_KAIMEMO}?tempUserID=${tempUserID}`)
 
   // TODO : provide, injectで共通的に処理したい
   const loading = ref<boolean>(true)
@@ -19,27 +20,14 @@ export const useInteraction = () => {
     validationSchema: toTypedSchema(schema),
   })
 
-  const fetchKaimemo = async () => {
-    const { data, error } = await GET('/kaimemo', {
-      params: {
-        query: {
-          tempUserID: tempUserID,
-        },
-      },
-    })
-    if (error) {
-      console.error(error)
-      return []
-    }
-
-    loading.value = false
-    return data
-  }
-
   onMounted(async () => {
-    items.value = await fetchKaimemo()
-
     localStorage.setItem('tempUserID', tempUserID)
+
+    // TODO : 初期表示で、一覧が表示されない問題がある
+    ws.onmessage = (event) => {
+      console.log(event.data)
+      items.value = event.data as Kaimemo[]
+    }
   })
 
   const onClickOpenAddItemModal = () => {
@@ -51,41 +39,27 @@ export const useInteraction = () => {
   }
 
   const onClickAddItem = handleSubmit(async (values) => {
-    const { error } = await POST('/kaimemo', {
-      body: {
+    ws.send(
+      JSON.stringify({
+        methodType: '1',
         tempUserID: tempUserID,
         ...values,
-      },
-    })
-    if (error) {
-      console.error(error)
-      return
-    }
+      }),
+    )
 
     setValues({
       name: '',
     })
-
-    items.value = await fetchKaimemo()
   })
 
   const onClickArchiveItem = async (id: string) => {
-    const { error } = await DELETE('/kaimemo/{id}', {
-      params: {
-        path: {
-          id: id,
-        },
-      },
-      body: {
+    ws.send(
+      JSON.stringify({
+        methodType: '2',
         tempUserID: tempUserID,
-      },
-    })
-    if (error) {
-      console.error(error)
-      return
-    }
-
-    items.value = await fetchKaimemo()
+        id: id,
+      }),
+    )
   }
 
   const filteredItems = computed(() => {

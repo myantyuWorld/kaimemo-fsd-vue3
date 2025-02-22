@@ -8,6 +8,7 @@ export const useInteraction = () => {
   const items = ref<Kaimemo[]>()
   const isOpenModal = ref(false)
   const selectedFilters = ref<string[]>([])
+  const tempUserID = localStorage.getItem('tempUserID') ?? ''
 
   // TODO : provide, injectで共通的に処理したい
   const loading = ref<boolean>(true)
@@ -17,7 +18,13 @@ export const useInteraction = () => {
   })
 
   const fetchKaimemo = async () => {
-    const { data, error } = await GET('/kaimemo', {})
+    const { data, error } = await GET('/kaimemo', {
+      params: {
+        query: {
+          tempUserID: tempUserID,
+        },
+      },
+    })
     if (error) {
       console.error(error)
       return []
@@ -40,7 +47,12 @@ export const useInteraction = () => {
   }
 
   const onClickAddItem = handleSubmit(async (values) => {
-    const { error } = await POST('/kaimemo', { body: values })
+    const { error } = await POST('/kaimemo', {
+      body: {
+        tempUserID: tempUserID,
+        ...values,
+      },
+    })
     if (error) {
       console.error(error)
       return
@@ -59,6 +71,9 @@ export const useInteraction = () => {
         path: {
           id: id,
         },
+      },
+      body: {
+        tempUserID: tempUserID,
       },
     })
     if (error) {

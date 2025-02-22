@@ -11,6 +11,7 @@ export const useInteraction = () => {
   const isOpenModal = ref<boolean>(false)
   const operatingCurrentDate = ref<Date>(new Date())
   const summaries = ref<components['schemas']['KaimemoSummary']>()
+  const tempUserID = localStorage.getItem('tempUserID') ?? ''
 
   const { defineField, errors, handleSubmit, resetForm } = useForm<KaimemoSummarySchema>({
     validationSchema: toTypedSchema(schema),
@@ -38,7 +39,13 @@ export const useInteraction = () => {
   })
 
   const fetchKaimemoSummary = async () => {
-    const { data, error } = await GET('/kaimemo/summary', {})
+    const { data, error } = await GET('/kaimemo/summary', {
+      params: {
+        query: {
+          tempUserID: tempUserID,
+        },
+      },
+    })
     if (error) {
       console.error(error)
       return []
@@ -90,7 +97,12 @@ export const useInteraction = () => {
   }
 
   const onClickAddAmountRecord = handleSubmit(async (values) => {
-    const { error } = await POST('/kaimemo/summary', { body: values })
+    const { error } = await POST('/kaimemo/summary', {
+      body: {
+        tempUserID: tempUserID,
+        ...values,
+      },
+    })
     if (error) {
       console.error(error)
       return
@@ -103,6 +115,9 @@ export const useInteraction = () => {
 
   const onClickDeleteAmountRecord = async (id: string) => {
     const { error } = await DELETE('/kaimemo/summary/{id}', {
+      body: {
+        tempUserID: tempUserID,
+      },
       params: {
         path: {
           id,

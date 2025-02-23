@@ -25,8 +25,10 @@ export const useInteraction = () => {
 
     // TODO : 初期表示で、一覧が表示されない問題がある
     ws.onmessage = (event) => {
-      console.log(event.data)
-      items.value = event.data as Kaimemo[]
+      console.log(JSON.parse(event.data))
+      items.value = JSON.parse(event.data)
+
+      loading.value = false
     }
   })
 
@@ -53,6 +55,8 @@ export const useInteraction = () => {
   })
 
   const onClickArchiveItem = async (id: string) => {
+    items.value = items.value?.filter((item) => item.id !== id)
+
     ws.send(
       JSON.stringify({
         methodType: '2',
@@ -66,7 +70,7 @@ export const useInteraction = () => {
     navigator.share({
       title: 'kaimemo!',
       text: 'リンクを共有し、買い物メモを共有しよう！',
-      url: window.location.href + `kaimemo?share=${tempUserID}`,
+      url: window.location.href + `?share=${tempUserID}`,
     })
   }
 

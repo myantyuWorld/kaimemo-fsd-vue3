@@ -1,6 +1,6 @@
-import { DELETE, GET, POST, type Kaimemo } from '@/shared/api'
+import { type Kaimemo } from '@/shared/api'
 import { useForm } from 'vee-validate'
-import { onMounted, ref, computed } from 'vue'
+import { onMounted, ref, computed, onUnmounted } from 'vue'
 import { type KaimemoSchema, schema } from '../types'
 import { toTypedSchema } from '@vee-validate/zod'
 import { useRouter } from 'vue-router'
@@ -11,6 +11,7 @@ export const useInteraction = () => {
   const selectedFilters = ref<string[]>([])
   const tempUserID =
     (useRouter().currentRoute.value.query.share as string) ?? localStorage.getItem('tempUserID')
+  const ws = new WebSocket(`${import.meta.env.VITE_WEBSOCKET_URL_KAIMEMO}?tempUserID=${tempUserID}`)
 
   // TODO : provide, injectで共通的に処理したい
   const loading = ref<boolean>(true)
@@ -19,27 +20,19 @@ export const useInteraction = () => {
     validationSchema: toTypedSchema(schema),
   })
 
-  const fetchKaimemo = async () => {
-    const { data, error } = await GET('/kaimemo', {
-      params: {
-        query: {
-          tempUserID: tempUserID,
-        },
-      },
-    })
-    if (error) {
-      console.error(error)
-      return []
-    }
-
-    loading.value = false
-    return data
-  }
-
   onMounted(async () => {
-    items.value = await fetchKaimemo()
-
     localStorage.setItem('tempUserID', tempUserID)
+
+    ws.onmessage = (event) => {
+      console.log(JSON.parse(event.data))
+      items.value = JSON.parse(event.data)
+
+      loading.value = false
+    }
+  })
+
+  onUnmounted(() => {
+    ws.close()
   })
 
   const onClickOpenAddItemModal = () => {
@@ -51,41 +44,37 @@ export const useInteraction = () => {
   }
 
   const onClickAddItem = handleSubmit(async (values) => {
-    const { error } = await POST('/kaimemo', {
-      body: {
+    ws.send(
+      JSON.stringify({
+        methodType: '1',
         tempUserID: tempUserID,
         ...values,
-      },
-    })
-    if (error) {
-      console.error(error)
-      return
-    }
+      }),
+    )
 
     setValues({
       name: '',
     })
-
-    items.value = await fetchKaimemo()
   })
 
   const onClickArchiveItem = async (id: string) => {
-    const { error } = await DELETE('/kaimemo/{id}', {
-      params: {
-        path: {
-          id: id,
-        },
-      },
-      body: {
-        tempUserID: tempUserID,
-      },
-    })
-    if (error) {
-      console.error(error)
-      return
-    }
+    items.value = items.value?.filter((item) => item.id !== id)
 
-    items.value = await fetchKaimemo()
+    ws.send(
+      JSON.stringify({
+        methodType: '2',
+        tempUserID: tempUserID,
+        id: id,
+      }),
+    )
+  }
+
+  const onClickShare = () => {
+    navigator.share({
+      title: 'kaimemo!',
+      text: 'リンクを共有し、買い物メモを共有しよう！',
+      url: window.location.href + `?share=${tempUserID}`,
+    })
   }
 
   const filteredItems = computed(() => {
@@ -107,5 +96,6 @@ export const useInteraction = () => {
     onClickCloseAddItemModal,
     onClickAddItem,
     onClickArchiveItem,
+    onClickShare,
   }
 }

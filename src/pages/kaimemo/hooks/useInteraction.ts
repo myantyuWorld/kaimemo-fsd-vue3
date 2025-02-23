@@ -62,6 +62,14 @@ export const useInteraction = () => {
     )
   }
 
+  const onClickShare = () => {
+    navigator.share({
+      title: 'kaimemo!',
+      text: 'リンクを共有し、買い物メモを共有しよう！',
+      url: window.location.href + `kaimemo?share=${tempUserID}`,
+    })
+  }
+
   const filteredItems = computed(() => {
     if (!selectedFilters.value.length) {
       return items.value
@@ -81,5 +89,6 @@ export const useInteraction = () => {
     onClickCloseAddItemModal,
     onClickAddItem,
     onClickArchiveItem,
+    onClickShare,
   }
 }

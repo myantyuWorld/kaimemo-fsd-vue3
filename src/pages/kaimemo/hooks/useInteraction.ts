@@ -1,6 +1,6 @@
 import { type Kaimemo } from '@/shared/api'
 import { useForm } from 'vee-validate'
-import { onMounted, ref, computed } from 'vue'
+import { onMounted, ref, computed, onUnmounted } from 'vue'
 import { type KaimemoSchema, schema } from '../types'
 import { toTypedSchema } from '@vee-validate/zod'
 import { useRouter } from 'vue-router'
@@ -23,13 +23,16 @@ export const useInteraction = () => {
   onMounted(async () => {
     localStorage.setItem('tempUserID', tempUserID)
 
-    // TODO : 初期表示で、一覧が表示されない問題がある
     ws.onmessage = (event) => {
       console.log(JSON.parse(event.data))
       items.value = JSON.parse(event.data)
 
       loading.value = false
     }
+  })
+
+  onUnmounted(() => {
+    ws.close()
   })
 
   const onClickOpenAddItemModal = () => {

@@ -32,7 +32,17 @@ const [date, dateProps] = defineField('date')
     <div class="justify-center sticky top-0">
       <div class="bg-gray-100 shadow-lg p-4 flex items-center justify-between">
         <span class="text-3xl" @click="onClickMonthlyPrev">＜</span>
-        <h1 class="text-2xl font-bold">{{ formatYearMonth(operatingCurrentDate) }}</h1>
+        <div class="flex items-center gap-2">
+          <router-link :to="`/summary/calender/2025-02`">
+            <h1 class="text-2xl font-bold">{{ formatYearMonth(operatingCurrentDate) }}</h1>
+            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24">
+              <path
+                fill="currentColor"
+                d="M11 14v-2h2v2zm-4 0v-2h2v2zm8 0v-2h2v2zm-4 4v-2h2v2zm-4 0v-2h2v2zm8 0v-2h2v2zM3 22V4h3V2h2v2h8V2h2v2h3v18zm2-2h14V10H5zM5 8h14V6H5zm0 0V6z"
+              />
+            </svg>
+          </router-link>
+        </div>
         <span class="text-3xl" @click="onClickMonthlyNext">＞</span>
       </div>
     </div>

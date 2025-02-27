@@ -4,6 +4,7 @@ import { computed, onMounted, ref } from 'vue'
 import { schema, type KaimemoSummarySchema } from '../types'
 import { toTypedSchema } from '@vee-validate/zod'
 import { useForm } from 'vee-validate'
+import { useAmountSummaryStore } from '@/features/kaimemo'
 
 export const useInteraction = () => {
   // TODO : provide, injectで共通的に処理したい
@@ -12,6 +13,7 @@ export const useInteraction = () => {
   const operatingCurrentDate = ref<Date>(new Date())
   const summaries = ref<components['schemas']['KaimemoSummary']>()
   const tempUserID = localStorage.getItem('tempUserID') ?? ''
+  const store = useAmountSummaryStore()
 
   const { defineField, errors, handleSubmit, resetForm } = useForm<KaimemoSummarySchema>({
     validationSchema: toTypedSchema(schema),
@@ -36,6 +38,8 @@ export const useInteraction = () => {
 
   onMounted(async () => {
     await fetchKaimemoSummary()
+
+    store.increment()
   })
 
   const fetchKaimemoSummary = async () => {
@@ -51,6 +55,7 @@ export const useInteraction = () => {
       return []
     }
 
+    store.mutation(data)
     summaries.value = data
   }
 
